@@ -55,3 +55,51 @@
 <div id="dialog" title="請說話">
   <p>Recording your voices.....</p>
 </div>
+
+
+<script>
+const recordAudio = () =>
+  new Promise(async resolve => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaRecorder = new MediaRecorder(stream);
+    const audioChunks = [];
+
+    mediaRecorder.addEventListener("dataavailable", event => {
+      audioChunks.push(event.data);
+    });
+
+    const start = () => mediaRecorder.start();
+
+    const stop = () =>
+      new Promise(resolve => {
+        mediaRecorder.addEventListener("stop", () => {
+          const audioBlob = new Blob(audioChunks);
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          const play = () => audio.play();
+          resolve({ audioBlob, audioUrl, play });
+        });
+
+        mediaRecorder.stop();
+      });
+
+    resolve({ start, stop });
+  });
+
+const sleep = time => new Promise(resolve => setTimeout(resolve, time));
+
+const handleAction = async () => {
+  const recorder = await recordAudio();
+  const actionButton = document.getElementById('action');
+  actionButton.disabled = true;
+  recorder.start();
+  await sleep(3000);
+  const audio = await recorder.stop();
+  audio.play();
+  await sleep(3000);
+  actionButton.disabled = false;
+}
+</script>
+    <h1>Audio Recording Test</h1>
+    <p>Talk for 3 seconds, then you will hear your recording played back</p>
+    <button id="action" onclick="handleAction()">Start recording...</button>

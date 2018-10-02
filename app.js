@@ -4,17 +4,30 @@
  */
 
 var express = require('express')
+  , fs = require('fs')
   , routes = require('./routes')
   , http = require('http')
+  , https = require('https')
   , path = require('path')
   , bodyParser = require('body-parser')
   , favicon = require('serve-favicon')
   , logger = require('morgan')
   , methodOverride = require('method-override');
 
+// Certificate
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/chinese.fychao.info/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/chinese.fychao.info/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/chinese.fychao.info/chain.pem', 'utf8');
+
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: ca
+};
+
 var app = express();
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 80);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 app.use(favicon(__dirname + '/public/images/favicon.png'));
@@ -30,6 +43,12 @@ if (app.get('env') == 'development') {
 
 app.get('/', routes.index);
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
+
+
+//http.createServer(app).listen(app.get('port'), function(){
+//  console.log("Express server listening on port " + app.get('port'));
+//});
+
+https.createServer(credentials, app).listen(443, () => {
+	console.log('HTTPS Server running on port 443');
 });
