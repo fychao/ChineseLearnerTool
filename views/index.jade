@@ -2,5 +2,20 @@ extends layout
 
 block content
 	div.container
-		h1 Program Name
-		p Hello World
+		h1 初級句子自動判讀糾錯系統 
+		center
+			div.row
+				div.col-xs-12.col-sm-6
+					h2 Speech to Text Result
+					img(src="https://cloud.google.com/images/products/speech/speech-api-lead.png" style="height:50px")
+					div.row
+						div(style="border:1px solid;width:90%;height:200px")
+							div(id="txt1") 近年來我們在血液循環…
+				div.col-xs-12.col-sm-6
+					h2 Gramma Check
+					div(style="color:red; height:50px") Using our deep learning model. <br> SEQ model w/ Verb. Volence.
+					div.row
+						div(style="border:1px solid;width:90%;height:200px")
+							div(id='txt2') 近年_Nd <font color="red"><b>來_Ng</b></font> 我們_Nh 在_P 血液_Na 循環_Na…
+					div.row
+		include recorder.html

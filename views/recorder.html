@@ -1,0 +1,57 @@
+
+
+<link rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.3.1/css/solid.css"
+      integrity="sha384-VGP9aw4WtGH/uPAOseYxZ+Vz/vaTb1ehm1bwx92Fm8dTrE+3boLfF1SpAtB1z7HW"
+      crossorigin="anonymous">
+<link rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.3.1/css/regular.css"
+      integrity="sha384-ZlNfXjxAqKFWCwMwQFGhmMh3i89dWDnaFU2/VZg9CvsMGA7hXHQsPIqS+JIAmgEq"
+      crossorigin="anonymous">
+<link rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.3.1/css/brands.css"
+      integrity="sha384-rf1bqOAj3+pw6NqYrtaE1/4Se2NBwkIfeYbsFdtiR6TQz0acWiwJbv1IM/Nt/ite"
+      crossorigin="anonymous">
+<link rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.3.1/css/fontawesome.css"
+      integrity="sha384-1rquJLNOM3ijoueaaeS5m+McXPJCGdr5HcA03/VHXxcp2kX2sUrQDmFc3jR5i/C7"
+      crossorigin="anonymous">
+<style>
+.fa-microphone:hover {
+      color: red;
+}
+</style>
+<center>
+<div id=recorder><i class="fas fa-microphone fa-w-11 fa-7x"></i></div>
+</center>
+
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+  $( "#recorder" ).click( function() {
+    $( "#dialog" ).dialog({modal: true,});
+      $( "#txt1" ).toggle( "slow", function() {
+        $( "#txt2" ).toggle( "slow", function() {
+      
+        });
+      });
+
+    // remove previous timeouts if it's opened more than once.
+    clearTimeout(myModalTimeout);
+
+    // hide it after a minute
+    myModalTimeout = setTimeout(function() {
+        $('#dialog').modal('hide');
+    }, 10);
+
+
+  } );
+  </script>
+</head>
+<body>
+ 
+<div id="dialog" title="請說話">
+  <p>Recording your voices.....</p>
+</div>
