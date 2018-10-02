@@ -4,6 +4,7 @@
  */
 
 var express = require('express')
+  , formidable = require('formidable')
   , fs = require('fs')
   , routes = require('./routes')
   , http = require('http')
@@ -42,7 +43,18 @@ if (app.get('env') == 'development') {
 }
 
 app.get('/', routes.index);
-
+app.post('/upload', function (req, res) {
+    var form = new formidable.IncomingForm();
+    form.parse(req, function (err, fields, files) {
+      var oldpath = files.audio_data.path;
+      var newpath = '/home/fychao_tw/ChineseLearnerTool/public/wav/' + files.audio_data.name + ".wav";
+      fs.rename(oldpath, newpath, function (err) {
+        if (err) throw err;
+        res.write('File uploaded and moved!');
+        res.end();
+      });
+    })
+});
 
 
 //http.createServer(app).listen(app.get('port'), function(){
