@@ -20,52 +20,88 @@
 .fa-microphone:hover {
       color: red;
 }
+.ui-dialog-titlebar-close {
+    visibility: hidden;
+}
+.noTitleStuff .ui-dialog-titlebar {display:none}
+
 </style>
 <center>
 <div id=recorder><i class="fas fa-microphone fa-w-11 fa-7x"></i></div>
+<div id=recorder-stop title="Recording...">
+  <center>
+  click to stop!
+  <i id=recorder-stop-btn class="fas fa-stop-circle fa-w-11 fa-7x" style='color:red'></i>
+  </center>
+</div>
+<div id=processing title="Processing...">
+  <center>
+  <i id=processing-btn class="fas fa-om fa-w-11 fa-7x"></i>
+  </center>
+</div>
 </center>
 
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script>
+  $(document).ready(function () {
+      $('.selector').dialog('option', 'dialogClass', 'noTitleStuff');
+      $("#recorder-stop").hide();
+      $("#enginer-view").hide();
+      $("#processing").hide();
+  });
+
   $( "#recorder" ).click( function() {
-    $( "#dialog" ).dialog({modal: true,});
-      $( "#txt1" ).toggle( "slow", function() {
-        $( "#txt2" ).toggle( "slow", function() {
-      
-        });
+      $("#recordButton" ).click();
+      $("#recorder-stop").dialog({
+          autoOpen: true,
+          modal: true,
+          width: 200,
+          draggable: false,
+   		  resizable: false
       });
-
-    // remove previous timeouts if it's opened more than once.
-    clearTimeout(myModalTimeout);
-
-    // hide it after a minute
-    myModalTimeout = setTimeout(function() {
-        $('#dialog').modal('hide');
-    }, 10);
-
-
+  } );
+  $( "#recorder-stop-btn" ).click( function() {
+      $("#stopButton" ).click();
+      $("#recorder-stop" ).dialog('close');
+      $("#processing").dialog({
+          autoOpen: true,
+          modal: true,
+          width: 200,
+          draggable: false,
+   		  resizable: false
+      });
+      $( "#processing-btn" ).css('color', 'blue');
+      $( "#processing-btn" ).animate({
+          color: "#00ff00",
+        }, 1000 );
   } );
   </script>
 </head>
-<body>
- 
-<div id="dialog" title="請說話">
-  <p>Recording your voices.....</p>
-</div>
 
 <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
 
+<div id=enginer-view>
     <div id="controls">
   	 <button id="recordButton">Record</button>
-  	 <button id="pauseButton" disabled>Pause</button>
+     <button id="pauseButton" disabled>Pause</button>
   	 <button id="stopButton" disabled>Stop</button>
     </div>
     <div id="formats">Format: start recording to see sample rate</div>
     <h3>Recordings</h3>
     <ol id="recordingsList"></ol>
+</div>
 <script>
+
+function DO_RENEW(){
+    console.log("TESTING! RENEW!");
+    $.get( "/get_res", function( data ) {
+          $( "#txt1" ).text(data.input);
+          $( "#txt2" ).text(data.proc);
+          $("#processing" ).dialog('close');
+    });
+}
 
 //webkitURL is deprecated but nevertheless
 URL = window.URL || window.webkitURL;
@@ -163,6 +199,7 @@ function pauseRecording(){
 	}
 }
 
+var _sampleRate = 44100;
 function stopRecording() {
 	console.log("stopButton clicked");
 
@@ -180,6 +217,7 @@ function stopRecording() {
 	//stop microphone access
 	gumStream.getAudioTracks()[0].stop();
 
+    _sampleRate = rec.node.context.sampleRate;
 	//create the wav blob and pass it on to createDownloadLink
 	rec.exportWAV(createDownloadLink);
 }
@@ -192,7 +230,8 @@ function createDownloadLink(blob) {
 	var link = document.createElement('a');
 
 	//name of .wav file to use during upload and download (without extendion)
-	var filename = new Date().toISOString();
+	var filename = new Date().toISOString() + "_" + _sampleRate;
+    console.log(filename);
 
 	//add controls to the <audio> element
 	au.controls = true;
@@ -216,18 +255,19 @@ function createDownloadLink(blob) {
 	var upload = document.createElement('a');
 	upload.href="#";
 	upload.innerHTML = "Upload";
-	upload.addEventListener("click", function(event){
+	//upload.addEventListener("click", function(event){
 		  var xhr=new XMLHttpRequest();
 		  xhr.onload=function(e) {
 		      if(this.readyState === 4) {
 		          console.log("Server returned: ",e.target.responseText);
+                  DO_RENEW();
 		      }
 		  };
 		  var fd=new FormData();
 		  fd.append("audio_data",blob, filename);
 		  xhr.open("POST","upload",true);
 		  xhr.send(fd);
-	})
+	//})
 	li.appendChild(document.createTextNode (" "))//add a space in between
 	li.appendChild(upload)//add the upload link to li
 

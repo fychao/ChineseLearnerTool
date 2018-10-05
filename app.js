@@ -3,6 +3,8 @@
  * Module dependencies.
  */
 
+var sys = require('util')
+var exec = require('child_process').exec;
 var express = require('express')
   , formidable = require('formidable')
   , fs = require('fs')
@@ -26,6 +28,9 @@ const credentials = {
 	ca: ca
 };
 
+function getLastWav(){
+}
+
 var app = express();
 
 app.set('port', process.env.PORT || 80);
@@ -43,6 +48,44 @@ if (app.get('env') == 'development') {
 }
 
 app.get('/', routes.index);
+
+function getSampleRate(fn){
+    return fn.split("Z_", 2)[1].split(".wav", 1)[0];
+}
+
+app.get('/get_res', function (req, res){
+    console.log(getLastWav());
+    const testFolder = '/home/fychao_tw/ChineseLearnerTool/public/wav';
+    const fs = require('fs');
+    fs.readdir(testFolder, (err, files) => {
+        var fns = new Array();
+        files.forEach(file => {
+            fns.push(testFolder+"/"+file);
+        });
+        fns.sort();
+        t_file = fns.pop();
+        console.log(t_file);
+        sampleRate = getSampleRate(t_file);
+
+        cli = "export GCLOUD_PROJECT=voice-214817; export GOOGLE_APPLICATION_CREDENTIALS=/home/fychao_tw/voice4chinese-d0dd7e9b60a1.json; node /home/fychao_tw/nodejs-speech/samples/recognize -r " + sampleRate + " -l zh-TW sync " + t_file;
+        console.log(cli);
+        dir = exec(cli, function(err, stdout, stderr) {
+            if (err) { console.log(stderr); }
+
+            var the_user_input = stdout.replace("Transcription:  ", "");
+            cli2 = "/usr/bin/python3 /home/fychao_tw/CKIP_PyCCS.py "+the_user_input.replace(" ", "\ ");
+            console.log(cli2);
+            dir = exec(cli2, function(err, stdout, stderr) {
+                console.log(stdout);
+                res.json({ input: the_user_input, proc: stdout });
+            });
+            //console.log("STDOUT:" +stdout);
+            //console.log("ERR:" +err);
+            //console.log("STDERR:" +stderr);
+        });
+    })
+});
+
 app.post('/upload', function (req, res) {
     var form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
